@@ -75,6 +75,7 @@ void loop() {
 void translateIR(long value)
 {
   lcd.print("Pressed key is");
+  lcd.setCursor(2,1);
   delay(1000);
   switch (value)
   {
