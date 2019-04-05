@@ -35,7 +35,7 @@ void setup() {
 
 
 void loop() {
-  //  lcd.clear();
+
   reading = DHT.read11(DHT11_PIN);
 
   lcd.print("Temp= "); // Prints "Arduino" on the LCD
@@ -46,9 +46,10 @@ void loop() {
   lcd.print("Humidity: ");
   lcd.print(DHT.humidity);
   lcd.print("%");
-  delay(2000); // 3 seconds delay
+  delay(2000); // 2 seconds delay
   lcd.clear();
 
+  //if IR sensor detects signals
   if (irrecv.decode(&results)) {
     // Serial.println(results.value, HEX);
     irrecv.resume();
@@ -62,29 +63,40 @@ void loop() {
   digitalWrite(trigger, LOW);
 
   duration = pulseIn(echo, HIGH);
-  //  if (duration == 0)
-  //  {
-  //    //Serial.println("Warning from Ultrasonic sensor");
-  //    lcd.clear();
-  //    lcd.print("Warning from Ultrasonic sensor");
-  //    delay(2000);
-  //  }
+    if (duration == 0)
+    {
+      //Serial.println("Warning from Ultrasonic sensor");
+      lcd.clear();
+      lcd.print("Warning-Ultrasonic sensor");
+      delay(2000);
+    }
   distance = (duration / 2) / 29.1;
   if (distance < 100)
   {
-    digitalWrite(intruderBuzzer, HIGH);
-    intruderHeight = entranceHeight - distance;
+    IntruderAlarmBuzzer();
     // Serial.print(entranceHeight - distance);
     //Serial.println("- is the intruder height");
-    lcd.clear();
-    lcd.print("intruder entered");
-    delay(2000);
-    digitalWrite(intruderBuzzer, HIGH);
   }
   else
     digitalWrite(intruderBuzzer, LOW);
   delay(200);
   lcd.clear();
+}
+
+void IntruderAlarmBuzzer()
+{
+  while(distance<100)
+  {
+  digitalWrite(intruderBuzzer, HIGH);
+  intruderHeight = entranceHeight - distance;
+  lcd.clear();
+  lcd.print("intruder entered");
+  lcd.setCursor(0, 1);
+  lcd.print("Height: ");
+  lcd.print(intruderHeight);
+  delay(1000);
+  digitalWrite(intruderBuzzer, HIGH);
+  }
 }
 
 void translateIR(long value)
