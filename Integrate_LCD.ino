@@ -1,7 +1,11 @@
 #include <LiquidCrystal.h>
 #include <IRremote.h>
+#include <dht.h>
 
 LiquidCrystal lcd(1, 2, 4, 5, 6, 7); // Creates an LC object. Parameters: (rs, enable, d4, d5, d6, d7)
+dht DHT;
+
+#define DHT11_PIN 11
 
 //variables related to ultrasonic sensor
 int trigger = 8;
@@ -10,7 +14,9 @@ int intruderBuzzer = 10;
 unsigned long duration;
 int distance = 0;
 int entranceHeight = 180; //180 cms
-int intruderHeight=0;
+int intruderHeight = 0;
+
+int reading = 0;
 
 const int RECV_PIN = 12;
 IRrecv irrecv(RECV_PIN);
@@ -30,7 +36,16 @@ void setup() {
 
 void loop() {
   //  lcd.clear();
-  lcd.print("Arduino"); // Prints "Arduino" on the LCD
+  reading = DHT.read11(DHT11_PIN);
+
+  lcd.print("Temp= "); // Prints "Arduino" on the LCD
+  lcd.print(DHT.temperature);
+  lcd.print((char)223);
+  lcd.print("C");
+  lcd.setCursor(0, 1);
+  lcd.print("Humidity: ");
+  lcd.print(DHT.humidity);
+  lcd.print("%");
   delay(2000); // 3 seconds delay
   lcd.clear();
 
@@ -47,22 +62,22 @@ void loop() {
   digitalWrite(trigger, LOW);
 
   duration = pulseIn(echo, HIGH);
-//  if (duration == 0)
-//  {
-//    //Serial.println("Warning from Ultrasonic sensor");
-//    lcd.clear();
-//    lcd.print("Warning from Ultrasonic sensor");
-//    delay(2000);
-//  }
+  //  if (duration == 0)
+  //  {
+  //    //Serial.println("Warning from Ultrasonic sensor");
+  //    lcd.clear();
+  //    lcd.print("Warning from Ultrasonic sensor");
+  //    delay(2000);
+  //  }
   distance = (duration / 2) / 29.1;
   if (distance < 100)
   {
     digitalWrite(intruderBuzzer, HIGH);
-    intruderHeight=entranceHeight - distance;
-   // Serial.print(entranceHeight - distance);
+    intruderHeight = entranceHeight - distance;
+    // Serial.print(entranceHeight - distance);
     //Serial.println("- is the intruder height");
-    //    lcd.clear();
-        lcd.print("An intruder entered");
+    lcd.clear();
+    lcd.print("intruder entered");
     delay(2000);
     digitalWrite(intruderBuzzer, HIGH);
   }
@@ -75,7 +90,7 @@ void loop() {
 void translateIR(long value)
 {
   lcd.print("Pressed key is");
-  lcd.setCursor(2,1);
+  lcd.setCursor(2, 1);
   delay(1000);
   switch (value)
   {
