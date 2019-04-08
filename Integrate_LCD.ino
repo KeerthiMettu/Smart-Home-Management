@@ -53,7 +53,11 @@ int distance = 0;
 int entranceHeight = 180; //180 cms
 int intruderHeight = 0;
 
+int flame_sensor = 3;
+int flame_detected;
+
 int reading = 0;
+int idleFlag = 1;
 
 const int RECV_PIN = 12;
 IRrecv irrecv(RECV_PIN);
@@ -67,27 +71,28 @@ void setup() {
   pinMode(trigger, OUTPUT);
   pinMode(echo, INPUT);
   pinMode(intruderBuzzer, OUTPUT);
+  pinMode(flame_sensor, INPUT);
 
 }
 
 
 void loop() {
+  flame_detected = digitalRead(flame_sensor);
+  if (flame_detected == 1)
+  {
+    FireAlarm();
+  }
+  else
+  {
+    Serial.println("No flame detected. stay cool");
+    //    digitalWrite(buzzer, LOW);
+    //    digitalWrite(LED, LOW);
+  }
 
-  reading = DHT.read11(DHT11_PIN);
-
-  lcd.print("Temp= "); // Prints "Arduino" on the LCD
-  lcd.print(DHT.temperature);
-  lcd.print((char)223);
-  lcd.print("C");
-  lcd.setCursor(0, 1);
-  lcd.print("Humidity: ");
-  lcd.print(DHT.humidity);
-  lcd.print("%");
-  delay(2000); // 2 seconds delay
-  lcd.clear();
 
   //if IR sensor detects signals
   if (irrecv.decode(&results)) {
+    idleFlag = 0;
     // Serial.println(results.value, HEX);
     irrecv.resume();
     lcd.clear();
@@ -106,18 +111,39 @@ void loop() {
     lcd.clear();
     lcd.print("Warning-Ultrasonic sensor");
     delay(2000);
+    //idleFlag=0;
   }
   distance = (duration / 2) / 29.1;
   if (distance < 100)
   {
     IntruderAlarmBuzzer();
-    // Serial.print(entranceHeight - distance);
-    //Serial.println("- is the intruder height");
   }
   else
+  {
     digitalWrite(intruderBuzzer, LOW);
+    //idleFlag=1;
+  }
   delay(200);
   lcd.clear();
+
+  if (idleFlag)
+  {
+    systemIdle();
+  }
+}
+
+void FireAlarm()
+{
+  //Serial.println("Flame detected...! take action immediately.");
+  digitalWrite(intruderBuzzer, HIGH);
+  lcd.clear();
+  lcd.print("Fire detected");
+  lcd.setCursor(0, 1);
+  lcd.print("Run to safe zone");
+  //    digitalWrite(LED, HIGH);
+  //    delay(200);
+  //    digitalWrite(LED, LOW);
+  //    delay(200);
 }
 
 void IntruderAlarmBuzzer()
@@ -138,7 +164,7 @@ void IntruderAlarmBuzzer()
 
 void translateIR(long value)
 {
-  lcd.print("Pressed key is");
+  //lcd.print("Pressed key is");
   lcd.setCursor(2, 1);
   delay(1000);
   switch (value)
@@ -198,9 +224,20 @@ void translateIR(long value)
         }
       }
       break;
-      
+
     case 16748655:
-      lcd.print("EQ");
+      //lcd.print("EQ");
+      {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("  Exiting the music track");
+        for (int positionCounter = 0; positionCounter < 25; positionCounter++)
+        {
+          lcd.scrollDisplayLeft();
+          delay(1000);
+        }
+        idleFlag = 1;
+      }
       break;
     case 16738455:
       lcd.print("0");
@@ -214,12 +251,16 @@ void translateIR(long value)
     case 16724175:
       lcd.print("1");
       {
+        lcd.setCursor(0, 0);
+        lcd.print("Playing track 1");
         Smoke();
       }
       break;
     case 16718055:
       lcd.print("2");
       {
+        lcd.setCursor(0, 0);
+        lcd.print("Playing track 2");
         Jingle();
       }
       break;
@@ -248,6 +289,23 @@ void translateIR(long value)
       lcd.print("other button");
   }
   delay(3000);
+}
+
+//this method should be called only when other sensors are not working
+void systemIdle()
+{
+  reading = DHT.read11(DHT11_PIN);
+
+  lcd.print("Temp= "); // Prints "Arduino" on the LCD
+  lcd.print(DHT.temperature);
+  lcd.print((char)223);
+  lcd.print("C");
+  lcd.setCursor(0, 1);
+  lcd.print("Humidity: ");
+  lcd.print(DHT.humidity);
+  lcd.print("%");
+  delay(2000); // 2 seconds delay
+  lcd.clear();
 }
 
 void beep (int speakerPin, int freqHz, long timeMs)
