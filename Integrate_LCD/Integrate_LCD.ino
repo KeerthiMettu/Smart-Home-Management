@@ -28,6 +28,7 @@ int flame_detected;
 int reading = 0;
 int idleFlag = 1;
 
+//IR sensor related variables
 const int RECV_PIN = 12;
 IRrecv irrecv(RECV_PIN);
 decode_results results;
@@ -58,8 +59,6 @@ void loop() {
   else
   {
     digitalWrite(intruderBuzzer, LOW);
-    //    digitalWrite(buzzer, LOW);
-    //    digitalWrite(LED, LOW);
   }
 
   //if IR sensor detects signals
@@ -113,10 +112,7 @@ void FireAlarm()
   lcd.setCursor(0, 1);
   lcd.print("Run to safe zone");
   delay(2000);
-  //    digitalWrite(LED, HIGH);
-  //    delay(200);
-  //    digitalWrite(LED, LOW);
-  //    delay(200);
+  
   idleFlag = 1;
 }
 
@@ -150,6 +146,6 @@ void systemIdle()
   lcd.print("Humidity: ");
   lcd.print(DHT.humidity);
   lcd.print("%");
-  delay(2000); // 2 seconds delay
-  lcd.clear();
+  delay(1500); // 2 seconds delay
+  //lcd.clear();
 }

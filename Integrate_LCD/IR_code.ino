@@ -1,4 +1,5 @@
 
+
 long int previousState = 0;
 long int currentState = 0;
 int authorizeFlag = 0;
@@ -6,8 +7,7 @@ int authorizeFlag = 0;
 void translateIR(long value)
 {
   //lcd.print("Pressed key is");
-  lcd.setCursor(2, 1);
-  delay(1000);
+  //delay(100);
   switch (value)
   {
     case 16753245:
@@ -20,15 +20,12 @@ void translateIR(long value)
         currentState = 16736925;
         lcd.clear();
         lcd.print("Loading.");
-        delay(1000);
+        delay(500);
         lcd.print(".");
-        delay(1000);
+        delay(500);
         lcd.print(".");
-        delay(1000);
+        delay(500);
         lcd.print(".");
-        delay(1000);
-        lcd.print(".");
-        delay(1000);
         lcd.clear();
         lcd.print("Press Play");
       }
@@ -45,6 +42,8 @@ void translateIR(long value)
     case 16761405:
       if (currentState != 16736925)
       {
+        lcd.print("Button pressed is: ");
+        lcd.setCursor(2, 1);
         lcd.print("PLAY/PAUSE");
       }
       else
@@ -72,9 +71,9 @@ void translateIR(long value)
           lcd.print("Hello... "); lcd.print(user);
           delay(1500);
           lcd.clear();
-          lcd.print("Select Song");
-          lcd.setCursor(0, 1);
           lcd.print("Press + for list");
+          lcd.setCursor(0, 1);
+          lcd.print("to select a Song");
         }
         else
         {
@@ -87,45 +86,61 @@ void translateIR(long value)
       lcd.print("VOL-");
       break;
     case 16754775:
-      if (currentState == 16736925 && authorizeFlag == 1)
+      if (currentState == 16761405 && authorizeFlag == 1)
       {
         previousState = currentState;
         currentState = 16754775;
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("Smoke On The Water: 1   Jingle Bells: 2   Custom made: 3");
-        for (int positionCounter = 0; positionCounter < 84; positionCounter++)
+        for (int positionCounter = 0; positionCounter < 64; positionCounter++)
         {
           lcd.scrollDisplayLeft();
           delay(300);
+          if (irrecv.decode(&results))
+          {
+            translateIR(results.value);
+            lcd.clear();
+            break;
+          }
         }
 
       }
       else
       {
+        lcd.print("Button pressed is: ");
+        lcd.setCursor(2, 1);
         lcd.print("VOL+");
       }
       break;
 
     case 16748655:
-      if (if (previousState != 0 && authorizeFlag == 1))
-        {
-          lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("  Exiting the music track");
-          for (int positionCounter = 0; positionCounter < 20; positionCounter++)
-          {
-            lcd.scrollDisplayLeft();
-            delay(1000);
-          }
-          idleFlag = 1;
-          authorizeFlag = 0;
-        }
-        else
-        {
-          lcd.clear();
-          lcd.print("EQ is pressed");
-        }
+      if ( (previousState != 0 && authorizeFlag == 1))
+      {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("  Music track ");
+        lcd.setCursor(0, 1);
+        lcd.print(" Exiting.");
+        lcd.print(".");
+        delay(500);
+        lcd.print(".");
+        delay(500);
+        //        for (int positionCounter = 0; positionCounter < 20; positionCounter++)
+        //        {
+        //          lcd.scrollDisplayLeft();
+        //          delay(1000);
+        //        }
+        idleFlag = 1;
+        authorizeFlag = 0;
+      }
+      else
+      {
+        lcd.clear();
+        lcd.print("Button pressed is: ");
+        lcd.setCursor(2, 1);
+        lcd.print("EQ");
+      }
       break;
     case 16738455:
       lcd.print("0");
@@ -137,27 +152,48 @@ void translateIR(long value)
       lcd.print("200+");
       break;
     case 16724175:
-      lcd.print("1");
+      if (authorizeFlag == 1)
       {
         lcd.setCursor(0, 0);
         lcd.print("Playing track 1");
         Smoke();
       }
+      else
+      {
+        lcd.clear();
+        lcd.print("Button pressed is: ");
+        lcd.setCursor(2, 1);
+        lcd.print("1");
+      }
       break;
     case 16718055:
-      lcd.print("2");
+      if (authorizeFlag == 1)
       {
         lcd.setCursor(0, 0);
         lcd.print("Playing track 2");
         Jingle();
       }
+      else
+      {
+        lcd.clear();
+        lcd.print("Button pressed is: ");
+        lcd.setCursor(2, 1);
+        lcd.print("2");
+      }
       break;
     case 16743045:
-      lcd.print("3");
+      if (authorizeFlag == 1)
       {
         lcd.setCursor(0, 0);
         lcd.print("Playing track 3");
         Sections();
+      }
+      else
+      {
+        lcd.clear();
+        lcd.print("Button pressed is: ");
+        lcd.setCursor(2, 1);
+        lcd.print("3");
       }
       break;
     case 16716015:
