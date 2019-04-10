@@ -28,6 +28,12 @@ int flame_detected;
 int reading = 0;
 int idleFlag = 1;
 
+//RGB LED variables
+int redPin = A5;
+int greenPin = A4;
+int bluePin = A3;
+int turnOffLED=0;
+
 //IR sensor related variables
 const int RECV_PIN = 12;
 IRrecv irrecv(RECV_PIN);
@@ -44,6 +50,10 @@ void setup() {
   pinMode(echo, INPUT);
   pinMode(intruderBuzzer, OUTPUT);
   pinMode(flame_sensor, INPUT);
+
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
 
 }
 
@@ -101,6 +111,16 @@ void loop() {
   {
     systemIdle();
   }
+  //glow white colour in RGB LED when normal
+  if(turnOffLED==0)
+  {
+      setLEDColor(255, 255, 255);
+  }
+  else
+  {
+    TurnOffRGB();
+  }
+  
 }
 
 void FireAlarm()
@@ -112,7 +132,8 @@ void FireAlarm()
   lcd.setCursor(0, 1);
   lcd.print("Run to safe zone");
   delay(2000);
-  
+  //glow red colour in RGB LED
+  setLEDColor(0, 0, 255);
   idleFlag = 1;
 }
 
@@ -127,7 +148,10 @@ void IntruderAlarmBuzzer()
     lcd.setCursor(0, 1);
     lcd.print("Height: ");
     lcd.print(intruderHeight);
-    delay(1000);
+    delay(500);
+    //glow blue colour in RGB LED
+    
+    setLEDColor(255, 0, 0);
     //digitalWrite(intruderBuzzer, HIGH);
   }
 }

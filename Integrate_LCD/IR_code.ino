@@ -7,7 +7,8 @@ int authorizeFlag = 0;
 void translateIR(long value)
 {
   //lcd.print("Pressed key is");
-  //delay(100);
+  //glow purple colour in RGB LED when a button is pressed on RC
+  setLEDColor(170, 0, 255);
   switch (value)
   {
     case 16753245:
@@ -31,23 +32,129 @@ void translateIR(long value)
       }
       break;
     case 16769565:
-      lcd.print("CH+");
+      //  lcd.print("CH+");
+      currentState = 16769565;
+      lcd.clear();
+      if (turnOffLED == 0)
+      {
+        lcd.print("Turn off LED ? ");
+        lcd.setCursor(0, 1);
+        lcd.print("Yes: NEXT ");
+      }
+      else
+      {
+        lcd.print("Turn on LED ? ");
+        lcd.setCursor(0, 1);
+        lcd.print("Yes: PREV ");
+      }
+
       break;
     case 16720605:
-      lcd.print("PREV");
+      if (currentState == 16769565 && turnOffLED!=0)
+      {
+        currentState = 16720605;
+        //glow green colour in RGB LED before finger sensing
+        setLEDColor(0, 255, 0);
+        //authorise to turn on LED
+        lcd.clear();
+        lcd.print("place ur finger");
+        lcd.setCursor(0, 1);
+        lcd.print("get ready");
+        delay(1000);
+        lcd.print(".");
+        delay(1000);
+        lcd.print(".");
+        delay(1000);
+        lcd.print(".");
+        delay(1000);
+        int fingerID = getFingerprintIDez();
+        delay(100);
+        String user = getfingerName(fingerID);
+        lcd.clear();
+        //for authorised users set the LED Turnoff flag to zero.
+        if (user != "")
+        {
+          authorizeFlag = 1;
+          lcd.print("Hello... "); lcd.print(user);
+          delay(1500);
+          lcd.clear();
+          lcd.print("Turning on LED");
+          turnOffLED = 0;
+        }
+        else
+        {
+          lcd.print("Unauthorized access");
+        }
+        delay(3000);
+      }
+      else
+      {
+        lcd.clear();
+        lcd.print("Button pressed is: ");
+        lcd.setCursor(2, 1);
+        lcd.print("PREV");
+      }
+
       break;
     case 16712445:
-      lcd.print("NEXT");
+      if (currentState == 16769565 && turnOffLED==0)
+      {
+        currentState = 16712445;
+        //glow green colour in RGB LED before finger sensing
+        setLEDColor(0, 255, 0);
+        //authorise to turn off LED
+        lcd.clear();
+        lcd.print("place ur finger");
+        lcd.setCursor(0, 1);
+        lcd.print("get ready");
+        delay(1000);
+        lcd.print(".");
+        delay(1000);
+        lcd.print(".");
+        delay(1000);
+        lcd.print(".");
+        delay(1000);
+        int fingerID = getFingerprintIDez();
+        delay(100);
+        String user = getfingerName(fingerID);
+        lcd.clear();
+        //for authorised users set the LED Turnoff flag to zero.
+        if (user != "")
+        {
+          authorizeFlag = 1;
+          lcd.print("Hello... "); lcd.print(user);
+          delay(1500);
+          lcd.clear();
+          lcd.print("Turning off LED");
+          turnOffLED = 1;
+        }
+        else
+        {
+          lcd.print("Unauthorized access");
+        }
+        delay(3000);
+      }
+      else
+      {
+        lcd.clear();
+        lcd.print("Button pressed is: ");
+        lcd.setCursor(2, 1);
+        lcd.print("NEXT");
+      }
+
       break;
     case 16761405:
       if (currentState != 16736925)
       {
+        lcd.clear();
         lcd.print("Button pressed is: ");
         lcd.setCursor(2, 1);
         lcd.print("PLAY/PAUSE");
       }
       else
       {
+        //glow green colour in RGB LED before finger sensing
+        setLEDColor(0, 255, 0);
         previousState = currentState;
         currentState = 16761405;
         lcd.clear();
@@ -117,6 +224,8 @@ void translateIR(long value)
     case 16748655:
       if ( (previousState != 0 && authorizeFlag == 1))
       {
+        //glow yellow colour in RGB LED while exiting the music track
+        setLEDColor(0, 255, 255);
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("  Music track ");
@@ -133,6 +242,8 @@ void translateIR(long value)
         //        }
         idleFlag = 1;
         authorizeFlag = 0;
+        currentState = 0;
+        previousState = 0;
       }
       else
       {
@@ -154,9 +265,13 @@ void translateIR(long value)
     case 16724175:
       if (authorizeFlag == 1)
       {
+        lcd.clear();
+        //glow aqua colour in RGB LED while music is playing
+        setLEDColor(255, 255, 0);
         lcd.setCursor(0, 0);
         lcd.print("Playing track 1");
         Smoke();
+
       }
       else
       {
@@ -169,6 +284,9 @@ void translateIR(long value)
     case 16718055:
       if (authorizeFlag == 1)
       {
+        lcd.clear();
+        //glow aqua colour in RGB LED while music is playing
+        setLEDColor(255, 255, 0);
         lcd.setCursor(0, 0);
         lcd.print("Playing track 2");
         Jingle();
@@ -184,6 +302,9 @@ void translateIR(long value)
     case 16743045:
       if (authorizeFlag == 1)
       {
+        lcd.clear();
+        //glow aqua colour in RGB LED while music is playing
+        setLEDColor(255, 255, 0);
         lcd.setCursor(0, 0);
         lcd.print("Playing track 3");
         Sections();
