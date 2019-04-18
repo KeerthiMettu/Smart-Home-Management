@@ -1,5 +1,8 @@
+Smart Home Management
+
 This is a project that describes the creation and stages of development of a Smart House Management using Arduino Uno board. The project consists of five main modules, which includes a combination of safety measures and entertainment aspects for the users of the system.
 The modules in the system are:
+
 Intruder detection
 Fire detection
 Music system for authenticated users
